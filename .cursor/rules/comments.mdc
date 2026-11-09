@@ -1,0 +1,89 @@
+---
+description: Reglas de escritura de comentarios y Javadoc para el proyecto BookHub API
+alwaysApply: true
+---
+
+# Reglas de comentarios para BookHub API
+
+## Idioma
+Todos los comentarios de código, Javadoc y mensajes de log deben estar escritos en **castellano**. Esto incluye:
+- Javadoc de clases y métodos (`/** ... */`)
+- Comentarios inline (`//`)
+- Mensajes de excepción y validación
+- Mensajes de log (`log.info(...)`, `log.error(...)`)
+
+## Javadoc obligatorio en cada método público
+
+Todo método público debe tener un bloque Javadoc con:
+- Primera línea: descripción clara de qué hace el método (no el cómo)
+- `@param` para cada parámetro con su descripción
+- `@return` describiendo qué devuelve (omitir en métodos void)
+- `@throws` para cada excepción que pueda lanzar
+
+Ejemplo:
+```java
+/**
+ * Autentica al usuario y genera un token JWT si las credenciales son válidas.
+ *
+ * @param request DTO con email y contraseña del usuario
+ * @return AuthResponse con el token JWT y datos básicos del usuario
+ * @throws BadCredentialsException si el email no existe o la contraseña es incorrecta
+ */
+public AuthResponse login(LoginRequest request) { ... }
+```
+
+## Explicación de anotaciones Spring
+
+La **primera vez** que aparece una anotación Spring en un archivo, agregar un comentario inline explicando:
+1. Qué hace esa anotación específicamente
+2. Por qué se usa en ese contexto
+
+Ejemplos:
+```java
+// @RestController: combina @Controller + @ResponseBody. Marca esta clase como
+// componente MVC que maneja requests HTTP y devuelve JSON automáticamente
+@RestController
+
+// @Transactional: envuelve el método en una transacción de BD. Si ocurre
+// cualquier excepción no chequeada, hace rollback automático de todos los cambios
+@Transactional
+
+// @PreAuthorize: verifica el permiso ANTES de ejecutar el método.
+// Si el usuario no cumple la condición, Spring lanza AccessDeniedException (403)
+@PreAuthorize("hasRole('ADMIN')")
+
+// @ManyToOne(fetch = FetchType.LAZY): relación muchos-a-uno con carga diferida.
+// LAZY evita cargar el objeto relacionado hasta que se acceda explícitamente (optimización)
+@ManyToOne(fetch = FetchType.LAZY)
+```
+
+## Comentarios de secciones
+
+Para archivos largos (más de 50 líneas), usar comentarios de sección para separar bloques lógicos:
+```java
+// ===== VALIDACIONES =====
+
+// ===== LÓGICA PRINCIPAL =====
+
+// ===== MÉTODOS AUXILIARES =====
+```
+
+## Comentarios en tests
+
+En los tests JUnit, documentar la estructura AAA (Arrange-Act-Assert):
+```java
+// Arrange: preparar los datos de prueba y configurar los mocks
+// Act: ejecutar el método bajo prueba
+// Assert: verificar que el resultado es el esperado
+```
+
+## Lo que NO comentar
+
+No agregar comentarios que solo repiten lo que el código ya dice claramente:
+```java
+// MAL: incrementar el contador  ← redundante
+counter++;
+
+// MAL: retornar el resultado  ← redundante
+return result;
+```

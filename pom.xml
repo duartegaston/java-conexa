@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Spring Boot Parent: centraliza versiones de dependencias y plugins -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.bookhub</groupId>
+    <artifactId>bookhub-api</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>bookhub-api</name>
+    <description>API REST de gestión de libros - Proyecto de referencia para entrevistas</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <!-- Versión de la librería JWT -->
+        <jjwt.version>0.12.3</jjwt.version>
+        <!-- Plugin de SonarQube -->
+        <sonar.maven.plugin.version>3.10.0.2594</sonar.maven.plugin.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- ===== SPRING BOOT CORE ===== -->
+
+        <!-- spring-boot-starter-web: incluye Spring MVC, Tomcat embebido y Jackson para JSON -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- spring-boot-starter-data-jpa: incluye Spring Data JPA + Hibernate + transacciones -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- spring-boot-starter-security: habilita Spring Security en toda la aplicación -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- spring-boot-starter-validation: Bean Validation (JSR-380) con Hibernate Validator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ===== BASE DE DATOS ===== -->
+
+        <!-- Driver JDBC de PostgreSQL para conectarse a la base de datos -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ===== JWT ===== -->
+
+        <!-- jjwt-api: API pública para crear y parsear tokens JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+
+        <!-- jjwt-impl: implementación interna de jjwt (solo en runtime) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- jjwt-jackson: soporte de Jackson para serializar claims del JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ===== DOCUMENTACIÓN API ===== -->
+
+        <!-- springdoc-openapi: genera Swagger UI y especificación OpenAPI 3 automáticamente -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <!-- ===== UTILIDADES ===== -->
+
+        <!-- Lombok: reduce boilerplate con @Getter, @Setter, @Builder, @NoArgsConstructor, etc. -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- ===== TESTING ===== -->
+
+        <!-- spring-boot-starter-test: JUnit 5 + Mockito + MockMvc + AssertJ + Spring Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- spring-security-test: utilidades para testear endpoints protegidos (@WithMockUser) -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- H2: base de datos en memoria para tests (no necesita PostgreSQL corriendo) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- spring-boot-maven-plugin: empaqueta la app como JAR ejecutable con Tomcat embebido -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Excluir Lombok del JAR final ya que solo se necesita en compilación -->
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- jacoco-maven-plugin: mide cobertura de tests y genera reporte para SonarQube -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.11</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- sonar-maven-plugin: envía métricas al servidor SonarQube con 'mvn sonar:sonar' -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar.maven.plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

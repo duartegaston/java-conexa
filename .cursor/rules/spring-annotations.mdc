@@ -1,0 +1,135 @@
+---
+description: Referencia rápida de anotaciones Spring usadas en BookHub API para que la IA las explique correctamente
+alwaysApply: true
+---
+
+# Anotaciones Spring en BookHub API
+
+Cuando generes o modifiques código en este proyecto, usa esta referencia para explicar correctamente cada anotación.
+
+## Anotaciones de componentes Spring (estereotipos)
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@Component` | Componente genérico de Spring. El contenedor IoC lo detecta y gestiona su ciclo de vida |
+| `@Service` | Especialización de @Component para la capa de servicio/negocio |
+| `@Repository` | Especialización de @Component para la capa de acceso a datos. Traduce excepciones de BD a DataAccessException |
+| `@Controller` | Especialización de @Component para manejar requests HTTP en Spring MVC |
+| `@RestController` | Combina @Controller + @ResponseBody. Los métodos devuelven JSON directamente |
+| `@Configuration` | Clase que define beans mediante métodos @Bean |
+
+## Anotaciones de inyección de dependencias
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@Autowired` | Inyecta automáticamente una dependencia por tipo. Evitar en campos; preferir inyección por constructor |
+| `@RequiredArgsConstructor` | Lombok: genera constructor con todos los campos `final`. Patrón recomendado para inyección por constructor |
+| `@Value("${propiedad}")` | Inyecta el valor de una propiedad del application.yml |
+| `@Bean` | El método retorna un objeto que Spring registra y gestiona como bean |
+
+## Anotaciones Spring MVC (REST)
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@RequestMapping("/ruta")` | Define la ruta base del controller o del método |
+| `@GetMapping` | Mapea peticiones HTTP GET |
+| `@PostMapping` | Mapea peticiones HTTP POST (crear recursos) |
+| `@PutMapping` | Mapea peticiones HTTP PUT (actualizar recurso completo) |
+| `@PatchMapping` | Mapea peticiones HTTP PATCH (actualizar parcialmente) |
+| `@DeleteMapping` | Mapea peticiones HTTP DELETE |
+| `@PathVariable` | Extrae un valor del segmento de la URL: `/users/{id}` |
+| `@RequestParam` | Extrae un parámetro de la query string: `/search?q=valor` |
+| `@RequestBody` | Deserializa el JSON del body HTTP al objeto Java indicado |
+| `@ResponseBody` | El valor retornado se serializa como JSON en el body de la respuesta |
+| `@ResponseStatus` | Define el código HTTP de respuesta del método |
+
+## Anotaciones Spring Security
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@EnableWebSecurity` | Habilita el soporte de Spring Security para la web |
+| `@EnableMethodSecurity` | Habilita @PreAuthorize, @PostAuthorize y @Secured en métodos |
+| `@PreAuthorize("expresión")` | Verifica el permiso ANTES de ejecutar el método |
+| `@PostAuthorize("expresión")` | Verifica el permiso DESPUÉS de ejecutar el método |
+| `@Secured("ROLE_ADMIN")` | Alternativa simple a @PreAuthorize para verificar un rol |
+| `@AuthenticationPrincipal` | Inyecta el objeto UserDetails del usuario autenticado en el método |
+| `@WithMockUser` | Solo en tests: simula un usuario autenticado con rol especificado |
+
+## Anotaciones JPA / Hibernate
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@Entity` | Marca la clase como entidad JPA (mapeada a una tabla) |
+| `@Table(name = "tabla")` | Configura el nombre de la tabla y sus constraints |
+| `@Id` | Marca el campo como clave primaria |
+| `@GeneratedValue(strategy = IDENTITY)` | La BD genera el valor (SERIAL en PostgreSQL) |
+| `@Column(nullable = false)` | Configura la columna (nombre, nulabilidad, longitud) |
+| `@Enumerated(EnumType.STRING)` | Almacena el enum como texto en la BD (no como número) |
+| `@ManyToOne` | Relación muchos-a-uno (ej: muchas reseñas → un libro) |
+| `@OneToMany(mappedBy = "campo")` | Relación uno-a-muchos (el lado inverso de @ManyToOne) |
+| `@JoinColumn(name = "fk_id")` | Especifica la columna de clave foránea |
+| `@PrePersist` | Ejecuta el método anotado ANTES de persistir la entidad |
+| `@PreUpdate` | Ejecuta el método anotado ANTES de actualizar la entidad |
+| `@UniqueConstraint` | Define una restricción de unicidad compuesta en la tabla |
+
+## Anotaciones de transacciones
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@Transactional` | Envuelve en una transacción. Rollback automático en excepciones no chequeadas |
+| `@Transactional(readOnly = true)` | Transacción de solo lectura. Optimización: evita dirty checking de Hibernate |
+
+## Anotaciones de Bean Validation (Jakarta)
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@Valid` | Activa la validación del objeto en el parámetro del método |
+| `@NotNull` | El valor no puede ser null |
+| `@NotBlank` | El String no puede ser null, vacío ni solo espacios |
+| `@NotEmpty` | La colección/String no puede ser null ni vacía |
+| `@Email` | El String debe tener formato de email válido |
+| `@Size(min, max)` | La longitud debe estar en el rango especificado |
+| `@Min(valor)` / `@Max(valor)` | El número debe ser mayor/menor que el valor dado |
+| `@Pattern(regexp)` | El String debe coincidir con la expresión regular |
+
+## Anotaciones de documentación (Swagger / OpenAPI)
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@Tag(name = "Nombre")` | Agrupa endpoints en Swagger UI |
+| `@Operation(summary = "...")` | Documenta un endpoint con nombre y descripción |
+| `@ApiResponse(responseCode = "200")` | Documenta un código de respuesta posible |
+| `@Parameter(description = "...")` | Documenta un parámetro del endpoint |
+| `@SecurityRequirement(name = "bearerAuth")` | Indica que el endpoint requiere autenticación |
+| `@OpenAPIDefinition` | Configura los metadatos globales de la API |
+| `@SecurityScheme` | Define el esquema de autenticación en Swagger UI |
+
+## Anotaciones Lombok
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@Getter` / `@Setter` | Genera getters y setters para todos los campos |
+| `@Data` | Combina @Getter, @Setter, @EqualsAndHashCode, @ToString |
+| `@Builder` | Genera el patrón Builder para construir instancias |
+| `@NoArgsConstructor` | Genera constructor sin argumentos (requerido por JPA) |
+| `@AllArgsConstructor` | Genera constructor con todos los campos |
+| `@RequiredArgsConstructor` | Genera constructor con todos los campos `final` |
+| `@Slf4j` | Genera un logger estático: `private static final Logger log` |
+
+## Anotaciones de testing
+
+| Anotación | Descripción |
+|-----------|-------------|
+| `@ExtendWith(MockitoExtension.class)` | Habilita Mockito en JUnit 5 |
+| `@Mock` | Crea un mock (objeto falso) de la clase |
+| `@MockBean` | Mock de Spring: reemplaza el bean real en el contexto |
+| `@InjectMocks` | Crea instancia real e inyecta los mocks |
+| `@Spy` | Objeto real que permite espiar llamadas a métodos |
+| `@WebMvcTest(Controller.class)` | Carga solo la capa web para testear un controller |
+| `@DataJpaTest` | Carga solo la capa JPA con H2 en memoria |
+| `@SpringBootTest` | Carga el contexto completo de Spring |
+| `@ActiveProfiles("test")` | Activa el perfil "test" (usa application-test.yml) |
+| `@BeforeEach` | Se ejecuta antes de cada test |
+| `@AfterEach` | Se ejecuta después de cada test |
+| `@DisplayName("...")` | Nombre descriptivo del test en los reportes |
+| `@Test` | Marca el método como un test |
