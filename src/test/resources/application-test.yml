@@ -1,0 +1,40 @@
+spring:
+  # ===== DATASOURCE EN MEMORIA PARA TESTS =====
+  # H2 reemplaza a PostgreSQL durante los tests: no necesita un servidor externo corriendo.
+  # Esto hace los tests más rápidos y portables (funcionan en cualquier máquina/CI).
+  datasource:
+    url: jdbc:h2:mem:bookhub_test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      # create-drop: crea el esquema al iniciar el contexto de test y lo elimina al cerrarlo.
+      # Garantiza un estado limpio para cada test suite.
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: false
+
+  # ===== H2 CONSOLE (opcional, útil para inspeccionar datos durante el debug de tests) =====
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# JWT con valores de test (no importa la seguridad, importa que funcione)
+jwt:
+  secret: test-secret-key-for-junit-tests-only-not-for-production-use-at-all
+  expiration: 3600000  # 1 hora
+
+open-library:
+  base-url: https://openlibrary.org
+  search-url: https://openlibrary.org/search.json
+  covers-url: https://covers.openlibrary.org/b/id
+
+logging:
+  level:
+    com.bookhub: WARN
+    org.springframework.security: WARN

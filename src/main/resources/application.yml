@@ -1,0 +1,83 @@
+spring:
+  application:
+    name: bookhub-api
+
+  # ===== DATASOURCE (conexión a PostgreSQL) =====
+  datasource:
+    # URL de conexión JDBC: jdbc:postgresql://<host>:<puerto>/<nombre_db>
+    url: jdbc:postgresql://localhost:5432/bookhub_db
+    username: bookhub_user
+    password: bookhub_pass
+    # HikariCP: pool de conexiones incluido en Spring Boot (más eficiente que crear conexión por request)
+    hikari:
+      maximum-pool-size: 10        # máximo de conexiones simultáneas al pool
+      minimum-idle: 2              # conexiones mínimas mantenidas abiertas en espera
+      connection-timeout: 30000    # tiempo máximo de espera para obtener conexión (ms)
+
+  # ===== JPA / HIBERNATE =====
+  jpa:
+    # hibernate.ddl-auto: cómo Hibernate gestiona el esquema de la BD
+    #   - create: elimina y crea tablas al iniciar (peligroso en producción)
+    #   - create-drop: crea al iniciar y elimina al cerrar (útil en tests)
+    #   - update: actualiza el esquema sin borrar datos (útil en desarrollo)
+    #   - validate: solo valida que el esquema coincide (recomendado en producción)
+    #   - none: no hace nada con el esquema
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        # Formato de las queries SQL en los logs para facilitar la lectura
+        format_sql: true
+        # Dialecto específico de PostgreSQL para que Hibernate genere SQL optimizado
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    # Muestra las queries SQL generadas por Hibernate en los logs (útil en desarrollo)
+    show-sql: false
+
+  # ===== JACKSON (serialización JSON) =====
+  jackson:
+    # Formato de fechas en JSON: ISO 8601 (ej: "2024-01-15T10:30:00")
+    serialization:
+      write-dates-as-timestamps: false
+    # Ignora propiedades desconocidas en el JSON recibido (más tolerante a cambios de API)
+    deserialization:
+      fail-on-unknown-properties: false
+
+# ===== SERVIDOR =====
+server:
+  port: 8080
+  servlet:
+    # Prefijo de contexto: todos los endpoints empiezan con /api/v1
+    context-path: /api/v1
+  error:
+    # No incluye el stack trace en las respuestas de error (seguridad)
+    include-stacktrace: never
+    include-message: always
+
+# ===== CONFIGURACIÓN JWT (personalizada) =====
+# Estas propiedades son leídas por JwtTokenProvider mediante @Value
+jwt:
+  # Clave secreta para firmar el token (en producción usar variable de entorno, mínimo 256 bits)
+  secret: bookhub-secret-key-for-jwt-signing-must-be-at-least-256-bits-long-in-production
+  # Tiempo de expiración del token en milisegundos (86400000 = 24 horas)
+  expiration: 86400000
+
+# ===== OPEN LIBRARY API (integración externa) =====
+open-library:
+  base-url: https://openlibrary.org
+  search-url: https://openlibrary.org/search.json
+  covers-url: https://covers.openlibrary.org/b/id
+
+# ===== SPRINGDOC (Swagger UI) =====
+springdoc:
+  api-docs:
+    path: /v3/api-docs          # endpoint de la especificación OpenAPI en JSON
+  swagger-ui:
+    path: /swagger-ui.html      # URL de la interfaz gráfica de Swagger
+    operations-sorter: method   # ordena los endpoints por método HTTP
+
+# ===== LOGGING =====
+logging:
+  level:
+    com.bookhub: DEBUG          # logs detallados de nuestro código
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO

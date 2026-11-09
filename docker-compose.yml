@@ -1,0 +1,68 @@
+version: '3.8'
+
+# docker-compose.yml: define los servicios de infraestructura del proyecto.
+# Comandos útiles:
+#   docker-compose up -d postgres          -> levanta solo la base de datos
+#   docker-compose up -d                   -> levanta PostgreSQL + SonarQube
+#   docker-compose down                    -> detiene y elimina los contenedores
+#   docker-compose down -v                 -> también elimina los volúmenes (borra datos)
+
+services:
+
+  # ===== BASE DE DATOS =====
+  postgres:
+    image: postgres:15-alpine
+    container_name: bookhub-postgres
+    environment:
+      POSTGRES_DB: bookhub_db          # nombre de la base de datos
+      POSTGRES_USER: bookhub_user      # usuario de conexión
+      POSTGRES_PASSWORD: bookhub_pass  # contraseña (no usar en producción, usar secrets)
+    ports:
+      - "5432:5432"   # mapea puerto host:contenedor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # persiste los datos entre reinicios
+    networks:
+      - bookhub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bookhub_user -d bookhub_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== SONARQUBE =====
+  # Plataforma de análisis de calidad de código (cobertura, bugs, code smells, vulnerabilidades)
+  sonarqube:
+    image: sonarqube:10.3-community
+    container_name: bookhub-sonarqube
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/bookhub_db
+      SONAR_JDBC_USERNAME: bookhub_user
+      SONAR_JDBC_PASSWORD: bookhub_pass
+    ports:
+      - "9000:9000"   # Interfaz web de SonarQube: http://localhost:9000
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - bookhub-network
+    ulimits:
+      # SonarQube requiere estos límites del sistema operativo
+      nofile:
+        soft: 65536
+        hard: 65536
+
+# Volúmenes nombrados: Docker los gestiona automáticamente en el host
+volumes:
+  postgres_data:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+
+# Red interna para que los contenedores se comuniquen por nombre de servicio
+networks:
+  bookhub-network:
+    driver: bridge
